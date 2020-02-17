@@ -1,0 +1,440 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApp3
+{
+        /*
+         * Максимальные показатели:
+         * helth = 100
+         * streight = 40(min = 15)
+         * armor = 50
+         * mana = 100
+         */
+        class Voin
+        {
+
+            public double health { get; set; }
+            public double armor { get; set; }
+            public string charpt { get; set; }
+            public double damage { get; set; }
+            public double mana { get; set; }
+
+            public Voin(double Health, double Armor, double Damage, double Mana)
+            {
+                health = Health;
+                armor = Armor;
+                damage = Damage;
+                mana = Mana;
+            }
+            public override string ToString()
+            {
+                return "Класс: " + charpt + '\n' + "Здоровье: " + health + '\0' + "Манa: " + mana + '\0' + "Атака: " + damage + '\0' + "Броня: " + armor;
+
+            }
+
+            public bool isAlive()
+            {
+                return health > 0;
+            }
+
+            public virtual void DoDamage(Voin kek)
+            {
+                kek.GetDamage(damage);
+                //kek.health = kek.health - (damage - (kek.armor * 0.2));
+                Console.WriteLine(charpt + " нанес урон " + kek.charpt);
+            }
+
+            public void GetDamage(double damage)
+            {
+                health = health - (damage - (armor * 0.2));
+            }
+
+        }
+
+        class Tank : Voin
+        {
+            public Tank(string charpt = "Джагернаут", double health = 100, double mana = 35, double damage = 18, double armor = 50) : base(health, armor, damage, mana)
+            {
+                this.charpt = charpt;
+            }
+
+            public void UpShield()
+            {
+                health += 50;
+                Console.WriteLine("Поднимает щит (+ 50 к здоровью)" + '\n');
+            }
+
+
+
+        }
+
+
+        class Assasin : Voin
+        {
+            public Assasin(string charpt = "Ассасин", double health = 50, double mana = 75, double damage = 15, double armor = 7) : base(health, armor, damage, mana)
+            {
+                this.charpt = charpt;
+            }
+
+
+            public void Poison()
+            {
+                double sc = damage + 25;
+                Console.WriteLine("Смазывает клинки ядом (+25 к атаке)" + '\n');
+
+            }
+        }
+
+
+        class Archer : Voin
+        {
+            public Archer(string charpt = "Лучник", double health = 60, double mana = 50, double damage = 30, double armor = 25) : base(health, armor, damage, mana)
+            {
+                this.charpt = charpt;
+            }
+
+
+
+            public void QuickShot(Voin kek)
+            {
+                kek.health = kek.health - ((damage * 1.25) - (kek.armor * 0.2));
+                Console.WriteLine("Лучник делает быстрый выстрел(+ 25% к обыному урону) по" + kek + '\n');
+
+            }
+
+        }
+
+
+        class Wizard : Voin
+        {
+            public Wizard(string charpt = "Маг", double health = 45, double mana = 100, double damage = 35, double armor = 15) : base(health, armor, damage, mana)
+            {
+                this.charpt = charpt;
+            }
+
+            public void Hex(Voin lol)
+            {
+                lol.health += 20;
+                Console.WriteLine("Колдует (+ 20 к здоровью) к" + lol + '\n');
+
+            }
+        }
+
+
+        class Knight : Voin
+        {
+            public Knight(string charpt = "Рыцарь", double health = 80, double mana = 45, double damage = 25, double armor = 35) : base(health, armor, damage, mana)
+            {
+                this.charpt = charpt;
+            }
+
+            public void Blow(Voin kek)
+            {
+                kek.health = kek.health - ((damage + 10) - (kek.armor * 0.2));
+                Console.WriteLine(charpt + "Ударяет с плеча (+ 10 к атаке)" + kek.charpt + '\n');
+
+            }
+
+
+        }
+
+        abstract class Strategy
+        {
+            public bool IsEnded = false;
+            public abstract void DoAction();
+
+        }
+
+        class Strategy1v1 : Strategy
+        {
+            Voin vrag1;
+            Voin vrag2;
+
+            public override string ToString()
+            {
+                return vrag1.ToString() + vrag2.ToString();
+            }
+
+            public Strategy1v1(Voin Vrag1, Voin Vrag2)
+            {
+                vrag1 = Vrag1; vrag2 = Vrag2;
+            }
+
+            public override void DoAction()
+            {
+                Console.WriteLine('\n' + "Начинается бой 1 на 1");
+                vrag1.DoDamage(vrag2);
+
+
+                if (vrag1.health <= 0)
+                {
+                    Console.WriteLine(vrag2.charpt + " умер, команда 1 победила");
+                    IsEnded = true;
+                    goto all;
+                }
+
+                vrag2.DoDamage(vrag1);
+                if (vrag2.health <= 0)
+                {
+                    Console.WriteLine(vrag1.charpt + " умер, команда 2 победила");
+                    IsEnded = true;
+                    goto all;
+                }
+            all:;
+                Console.WriteLine("Бой окончен \n");
+            }
+
+
+        }
+
+        class StrategyOMG : Strategy
+        {
+            List<Voin> voins1 = new List<Voin>();
+            List<Voin> voins2 = new List<Voin>();
+            public StrategyOMG(List<Voin> Voins1, List<Voin> Voins2)
+            {
+                voins1 = Voins1;
+                voins2 = Voins2;
+            }
+            public override string ToString()
+            {
+                return voins1.ToString() + voins2.ToString();
+            }
+
+            public override void DoAction()
+            {
+                Console.WriteLine('\n' + "Начинается бой 5 на 5");
+                for (int i = 0; i < 5;)
+                {
+                    Console.WriteLine("Ход: " + (i + 1));
+                    voins1[i].DoDamage(voins2[i]);
+                    if (voins2[i].health <= 0)
+                    {
+                        Console.WriteLine(voins2[i].charpt + " умер, команда 1 победила");
+                        IsEnded = true;
+                        goto all;
+                    }
+                    voins2[i].DoDamage(voins1[i]);
+                    if (voins1[i].health <= 0)
+                    {
+                        Console.WriteLine(voins1[i].charpt + " умер, команда 2 победила");
+                        IsEnded = true;
+                        goto all;
+                    }
+                    Console.WriteLine();
+                    i++;
+                }
+            all:
+                Console.WriteLine("Бой окончен \n");
+            }
+
+        }
+
+        class Menu
+        {
+            List<Voin> voins1 = new List<Voin>();
+            List<Voin> voins2 = new List<Voin>();
+
+            public Menu(List<Voin> Voins1, List<Voin> Voins2)
+            {
+                voins1 = Voins1;
+                voins2 = Voins2;
+            }
+            public void menu(int per)
+            {
+                Console.WriteLine("1 - стратегия 1 на 1  \n2 - стратегия 5 на 5: ");
+                per = Convert.ToInt32(Console.ReadLine());
+                switch (per)
+                {
+                    case 1:
+
+
+                        int b = 1;
+                        Console.WriteLine("Выберете персонажа за которго вы будете выступать: ");
+                        foreach (Voin voin in voins1)
+                        {
+                            Console.WriteLine(b + " " + voin.charpt);
+                            b++;
+
+                        }
+
+                        int a1 = Convert.ToInt32(Console.ReadLine());
+
+                        b = 1;
+                        a1--;
+                        double h1 = voins1[a1].health;
+
+                        Console.WriteLine("Выберете персонажа против которго вы будете выступать: ");
+                        foreach (Voin voin in voins2)
+                        {
+                            Console.WriteLine(b + " " + voin.charpt);
+                            b++;
+
+                        }
+                        int a2 = Convert.ToInt32(Console.ReadLine());
+
+                        b = 1;
+                        a2--;
+                        double h2 = voins2[a2].health;
+
+                    Scren:
+                        Console.WriteLine("1 - провести атку \n2 - статистика боя \n3 - выход из боя: ");
+                        int swt = Convert.ToInt32(Console.ReadLine());
+                        switch (swt)
+                        {
+                            case 1:
+                                Strategy1v1 g = new Strategy1v1(voins1[a1], voins2[a2]);
+                                g.DoAction();
+                                if (voins2[a2].health <= 0)
+                                {
+                                    goto case 3;
+                                }
+                                if (voins1[a1].health <= 0)
+                                {
+                                    goto case 3;
+                                }
+
+
+                                goto Scren;
+                            case 2:
+
+                                Console.WriteLine("Здоровье вашего персонажа " + voins1[a1].health + " , урон нанесенный вашим персонажем " + (h2 - voins2[a2].health));
+                                Console.WriteLine("Здоровье противника " + voins2[a2].health + " , урон нанесенный врагом " + (h1 - voins1[a1].health));
+                                goto Scren;
+                            case 3:
+
+                                break;
+                        }
+
+                        break;
+
+                    case 2:
+
+
+                    Scren2:
+                        Console.WriteLine("1 - провести атку \n2 - статистика боя \n3 - выход из боя: ");
+                        swt = Convert.ToInt32(Console.ReadLine());
+                        switch (swt)
+                        {
+                            case 1:
+                                int i = 0;
+                                StrategyOMG g = new StrategyOMG(voins1, voins2);
+                                g.DoAction();
+                                foreach (Voin voin in voins1)
+                                {
+                                    if (voins2[i].health <= 0)
+                                    {
+                                        goto case 3;
+
+                                    }
+                                    i++;
+                                }
+                                i = 0;
+                                foreach (Voin voin in voins2)
+                                {
+                                    if (voins1[i].health <= 0)
+                                    {
+                                        goto case 3;
+
+                                    }
+                                    i++;
+                                }
+
+
+
+                                goto Scren2;
+
+                            case 2:
+                                foreach (Voin voin in voins1)
+                                {
+                                    Console.WriteLine(voin.charpt + " team 1 " + " здоровье: " + voin.health);
+                                }
+                                foreach (Voin voin in voins2)
+                                {
+                                    Console.WriteLine(voin.charpt + " team 2 " + " здоровье: " + voin.health);
+                                }
+                                goto Scren2;
+
+                            case 3:
+
+                                break;
+                        }
+                        break;
+                }
+
+            }
+        }
+
+        class Program
+        {
+            static void Main(string[] args)
+            {
+                List<Voin> voini1 = new List<Voin>();
+                voini1.Add(new Wizard());
+                voini1.Add(new Knight());
+                voini1.Add(new Archer());
+                voini1.Add(new Tank());
+                voini1.Add(new Assasin());
+
+                List<Voin> voini2 = new List<Voin>();
+                voini2.Add(new Tank());
+                voini2.Add(new Assasin());
+                voini2.Add(new Knight());
+                voini2.Add(new Wizard());
+                voini2.Add(new Archer());
+
+                Console.WriteLine();
+                /*
+                foreach (Voin voin in voini1)
+                {
+                    Console.WriteLine(voin.ToString()); 
+
+                }
+                Console.WriteLine();
+                foreach (Voin voin in voini2)
+                {
+                    Console.WriteLine(voin.ToString());
+
+                }
+
+                Console.WriteLine();
+
+                StrategyOMG oMG = new StrategyOMG(voini1, voini2);
+                oMG.DoAction();
+                oMG.DoAction();
+
+                Console.WriteLine();
+
+                voini1[1].DoDamage(voini1[0]);
+
+                ((Knight)voini1[1]).Blow(voini1[3]);
+
+                Console.WriteLine(voini1[1].ToString());
+
+                Strategy1v1 v1 = new Strategy1v1(voini1[3],voini2[4]);
+                v1.DoAction();*/
+                int per = 0;
+                Menu m = new Menu(voini1, voini2);
+                m.menu(per);
+                Console.WriteLine('\n' + '\n');
+                foreach (Voin voin in voini1)
+                {
+                    Console.WriteLine(voin.ToString());
+
+                }
+              ;
+                Console.WriteLine();
+
+                foreach (Voin voin in voini2)
+                {
+                    Console.WriteLine(voin.ToString());
+
+                }
+
+                Console.ReadKey();
+            }
+        }
+    }
